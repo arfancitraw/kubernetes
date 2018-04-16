@@ -1,0 +1,88 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: kubebox
+parameters:
+- name: ROUTE_HOSTNAME
+  description: The externally-reachable host name that routes to the Kubebox service
+  required: false
+message: |-
+  Kubebox is deployed at ${ROUTE_HOSTNAME}.
+objects:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    name: kubebox
+    labels:
+      app: kubebox
+  spec:
+    tags:
+    - from:
+        kind: DockerImage
+        name: docker.io/astefanutti/kubebox:server
+      importPolicy:
+        scheduled: true
+      name: server
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: kubebox
+    labels:
+      app: kubebox
+  spec:
+    ports:
+      - name: kubebox
+        protocol: TCP
+        port: 8080
+        targetPort: 8080
+    selector:
+      app: kubebox
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: kubebox
+  spec:
+    host: ${ROUTE_HOSTNAME}
+    to:
+      kind: Service
+      name: kubebox
+    tls:
+      insecureEdgeTerminationPolicy: Redirect
+      termination: edge
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: kubebox
+    name: kubebox
+  spec:
+    replicas: 1
+    strategy:
+      type: Recreate
+    selector:
+      app: kubebox
+    template:
+      metadata:
+        labels:
+          app: kubebox
+      spec:
+        containers:
+        - image: astefanutti/kubebox:server
+          imagePullPolicy: Always
+          name: kubebox
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          env:
+          - name: KUBEBOX_USE_SA_TOKEN
+            value: 'false'
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - kubebox
+        from:
+          kind: ImageStreamTag
+          name: kubebox:server
+      type: ImageChange
+    - type: ConfigChange
