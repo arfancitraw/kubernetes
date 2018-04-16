@@ -1,0 +1,46 @@
+{
+    // Use IntelliSense to find out which attributes exist for node debugging
+    // Use hover for the description of the existing attributes
+    // For further information visit https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Node (launch)",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/index.js",
+            "args": [
+                ""
+            ],
+            "cwd": "${workspaceRoot}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Node (attach)",
+            "type": "node",
+            "request": "attach",
+            "port": 9229
+        },
+        {
+            // Serve the 'docs' directory to http://localhost:8080
+            "name": "Chrome (launch)",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:8080/index.html",
+            "webRoot": "${workspaceRoot}/",
+            "sourceMaps": true
+        },
+        {
+            // Launch Chrome in debug mode
+            // google-chrome --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug --ignore-certificate-errors
+            "name": "Chrome (attach)",
+            "type": "chrome",
+            "request": "attach",
+            "port": 9222,
+            "url": "http://localhost:8080/index.html",
+            "webRoot": "${workspaceRoot}",
+            "sourceMaps": true,
+            "trace": true
+        }
+    ]
+}
